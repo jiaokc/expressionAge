@@ -20,4 +20,5 @@ INSERT INTO `container` VALUES (3, 'IUQ7', NULL, 'dsdsdsds', 'ccc', '1');
 ##请求路径首页
 *访问路径：
    >http://localhost:8888/kude/pages/index.html
+   -----------
 
