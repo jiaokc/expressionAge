@@ -1,1 +1,1 @@
-const url = 'http://94.191.2.204:8888/'
+const url = 'http://localhost:8888/'
