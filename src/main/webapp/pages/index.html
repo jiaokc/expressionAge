@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>快递模拟项目</title>
+    <style>
+        html,body{font-size:14px;margin: 0; padding: 0}
+        #expressage{
+            width: 98%;
+            height: 100%;
+            position: fixed;
+            left: 1%;
+            display: flex;
+        }
+        .content{
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            margin: auto;
+            display: flex;
+            align-items: center;;
+            justify-content: center;
+            background: #f7f7f7;
+            border-radius: 8px;
+        }
+        .content>div{
+            flex: 1;
+            font-size: 24px;
+            color: #fff;
+            text-align: center;
+        }
+        .content>div span{
+            width: 80%;
+            height: 140px;   
+            line-height: 140px;
+            display: inline-block;  
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .send span{
+            background: #21a5a5
+        }
+        .get span{
+            background: #da6045;
+        }
+        .send-model,.get-model {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: none;
+        }
+        .send-model .send-model-cont,.get-model .get-model-cont{
+            max-width: 600px;
+            height: 400px;
+            margin: 50px auto;
+            background: #fff;
+            border-radius: 4px;
+            width: 90%;
+        }
+        .send-model .send-model-cont h1,.get-model .get-model-cont h1{
+            font-size: 20px;
+            text-align: center;
+            padding-top: 40px;
+            color: #333
+        }
+        .send-model .send-model-cont p,.get-model .get-model-cont p{
+            font-size: 16px;
+            margin-left: 24px;
+            color: #666
+        }
+        .model-wrap{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%
+        }
+        .send-model .send-model-cont .send-info textarea{
+            max-width: 540px;
+            margin: 10px auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 6px 8px;
+            resize: none;
+            height: 100px;
+            display: block;
+            font-size: 16px;
+            color: #666;
+            width: 90%;
+        }
+        .send-submit,.get-submit{
+            text-align: center;
+        }
+        .send-submit button,.get-submit button{
+            width: 180px;
+            height: 48px;
+            line-height: 48px;
+            font-size: 18px;
+            background: #ff7730;
+            color: #fff;
+            border: 1px solid #ff7730;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .close{
+            float: right;
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            font-size: 28px;
+            color: #666;
+            text-align: center;
+            line-height: 30px;
+            z-index: 1000;
+            margin-top: -48px;
+            margin-right: 14px;
+            cursor: pointer;
+        }
+        .get-info{
+            text-align: center;
+        }
+        .get-info input{
+            height: 30px;
+            line-height: 30px;
+            color: #333;
+            font-size: 16px;
+            max-width: 520px;
+            width: 90%;
+            padding: 6px 8px;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="expressage">
+        <div class="content">
+            <!-- 存 -->
+            <div class="send"><span>寄件</span></div>
+            <!-- 取 -->
+            <div class="get"><span>取件</span></div>
+        </div>
+        <!-- 存件弹框 -->
+        <div class="send-model">
+            <div class="model-wrap">
+                <div class="send-model-cont">
+                    <h1>请填写寄件信息</h1>
+                    <span class="close">x</span>
+                    <p>格号： <span class="send-box-num"></span></p>
+                    <p>开门状态： <span class="send-status"></span></p>
+                    <div class="send-info">
+                        <textarea id="sendMess" placeholder="请输入寄件信息" maxlength="100"></textarea>
+                    </div>
+                    <div class="send-submit"><button>完成</button></div>
+                </div>
+            </div>
+        </div>
+        <!-- 取件弹框 -->
+        <div class="get-model">
+            <div class="model-wrap">
+                <div class="get-model-cont">
+                    <h1>请输入取件码</h1>
+                    <span class="close">x</span>
+                    <div class="get-info">
+                        <input type="text" id="getCode" name="getCode" placeholder="请输入取件码" maxlength="10">
+                    </div>
+                    <div class="get-submit"><button>完成</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="host.js"></script>
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script>
+    $(window).load(() => {
+        console.log(url)
+        // 存件
+        $(".send").click(() => {
+            console.log("寄件")
+          $("#sendMess").val('')
+            $.ajax({
+                // 测试接口
+                url: `${url}kude/con/query`,
+                method: 'get',
+                data: {},
+                dataType: "json",
+                success: (res) => {
+                console.log(res)
+            if(res.con_error_message === '1'){
+                    return alert("快递柜已满");
+                }
+                let status = res.con_status
+                $('.send-box-num').html(res.id)
+                switch (status) {
+                    case '0':
+                        // 无货
+                        status = '无货'
+                        break
+                    case '1':
+                        // 有货
+                        status = '有货'
+                        break
+                    case '2':
+                        // 有货
+                        status = '异常'
+                        break
+                }
+                $('.send-status').html(status)
+                $(".send-model").show()
+            },
+            error: (err) => {
+    }
+        })
+        })
+        // 关闭寄件弹框
+        $(".send-model .close").click(() => {
+            $(".send-model").hide()
+        })
+        // 寄件完成
+        $('.send-submit button').click(() => {
+            // 寄件信息
+            let mess = $("#sendMess").val()
+            let vid = $(".send-box-num").html()
+            if (!mess) return alert("寄件信息为空！")
+            // 寄件参数
+            let params = {
+                id: vid,
+                con_info:mess
+            }
+
+            $.ajax({
+                // 测试接口
+                url:  `${url}kude/con/add`,
+                method: 'post',
+                data: params,
+                success: (res) => {
+                    console.log(res)
+                    window.open(`./lockers.html?id=${res}`)
+                },
+                error: (err) =>{
+                    console.log("error")
+                    console.log(err)
+    }
+            })
+            alert("寄件完成！")
+            $(".send-model").hide()
+        })
+        
+        // 取件
+        $(".get").click(() => {
+            $("#getCode").val('')
+            console.log("取件")
+            $(".get-model").show()
+        })
+        // 关闭取件弹框
+        $(".get-model .close").click(() => {
+            $(".get-model").hide()
+        })
+        // 取件完成
+        $('.get-submit button').click(() => {
+            // 取件码
+            let code = $("#getCode").val()
+            if (!code) return alert("取件码为空！")
+            $.ajax({
+                // 测试接口
+                url: `${url}kude/con/check/${code}`,
+                method: 'get',
+                data: {},
+                success: (res) => {
+                    console.log(res)
+                    if (res.con_error_message!== '1'){
+                        // 成功
+                        alert("取件完成！")
+                        $(".send-model").hide()
+                        let timer = setTimeout(() =>{
+                            window.open(`./lockers.html?id=${res.id}`)
+                            clearTimeout(timer)
+                        },1000)
+                    } else alert("验证码不存在！")
+                },
+                error: (err) =>{
+                    console.log("error")
+                    console.log(err)
+                }
+            })
+        })
+    })
+</script>
+</html>
